@@ -6,8 +6,8 @@ resource "aws_iam_role" worker_role {
 }
 
 resource "aws_iam_policy" "worker_s3_full_access" {
-name        = "worker-s3-full-access"
-  description = "Grants full access to a specific S3 bucket"
+  name        = "worker-s3-full-access"
+  description = "Grants full access to the chasing-horizons S3 bucket"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -18,10 +18,23 @@ name        = "worker-s3-full-access"
           "s3:*"
         ],
         Resource = [
-          "arn:aws:s3:::chasing_horizons_website_bucket",
-          "arn:aws:s3:::chasing_horizons_website_bucket/*"
+          "arn:aws:s3:::chasing-horizons",
+          "arn:aws:s3:::chasing-horizons/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:ListAllMyBuckets",
+          "s3:GetBucketLocation"
+        ],
+        Resource = "*"
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "worker_role_s3_access_attachment" {
+  policy_arn = aws_iam_policy.worker_s3_full_access.arn
+  role       = aws_iam_role.worker_role.name
 }

@@ -12,3 +12,7 @@ provider "aws" {
   profile = "admin-user"
 }
 
+module "services" {
+  source = "./services"
+}
+
