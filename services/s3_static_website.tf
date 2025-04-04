@@ -29,12 +29,17 @@ resource "aws_s3_bucket_policy" "allow_cloudfront" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
+        Effect    = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"
+          Service = "cloudfront.amazonaws.com"
         },
-        Action = "s3:GetObject",
-        Resource = "${aws_s3_bucket.chasing_horizons_website_bucket.arn}/*"
+        Action   = "s3:GetObject",
+        Resource = "${aws_s3_bucket.chasing_horizons_website_bucket.arn}/*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.website_distribution.arn
+          }
+        }
       }
     ]
   })
@@ -45,12 +50,10 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     domain_name = aws_s3_bucket.chasing_horizons_website_bucket.bucket_regional_domain_name
     origin_id   = "S3-chasing-horizons"
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.website_origin_access_control.id
   }
 
-  enabled = true
+  enabled             = true
   default_root_object = "index.html"
 
   default_cache_behavior {
@@ -79,8 +82,11 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   }
 }
 
-resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "OAI for S3 access"
+resource "aws_cloudfront_origin_access_control" "website_origin_access_control" {
+  name                              = "website_origin_access_control"
+  description                       = "Policy"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
-
 
