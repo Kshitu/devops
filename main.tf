@@ -16,3 +16,7 @@ module "services" {
   source = "./services"
 }
 
+output "cloudfront_url" {
+  value = module.services.cloudfront_url
+}
+

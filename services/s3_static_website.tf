@@ -83,8 +83,4 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for S3 access"
 }
 
-# fetch the CF URL
-output "cloudfront_url" {
-  value = aws_cloudfront_distribution.website_distribution.domain_name
-}
 
