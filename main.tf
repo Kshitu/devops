@@ -16,6 +16,9 @@ module "services" {
   source = "./services"
 }
 
+module "github-runner" {
+  source = "./github-runner"
+}
 output "cloudfront_url" {
   value = module.services.cloudfront_url
 }

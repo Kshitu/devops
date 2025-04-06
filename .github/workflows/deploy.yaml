@@ -1,0 +1,31 @@
+name: Opentofu Plan and Apply
+
+on:
+  push:
+    branches:
+      - '**'  # Trigger on all branches
+  pull_request:
+    branches:
+      - '**'  # Trigger on pull requests to all branches
+
+jobs:
+  opentofu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Opentofu
+        run: |
+          curl -fsSL https://github.com/opentofu/opentofu/releases/download/v1.9.0/opentofu_0.4.0_linux_amd64.tar.gz | tar xz
+          sudo mv opentofu /usr/local/bin/
+
+      - name: Opentofu Init
+        run: opentofu init
+
+      - name: Opentofu Plan
+        run: opentofu plan
+
+      - name: Opentofu Apply (on main only)
+        if: github.ref == 'refs/heads/main'  # Apply only on the main branch
+        run: opentofu apply -auto-approve
